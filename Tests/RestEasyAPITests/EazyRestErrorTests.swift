@@ -126,6 +126,39 @@ final class EazyRestClientAdditionalCoverageTests: XCTestCase {
     }
 }
 
+/// Custom URLProtocol that can return non-HTTP responses for testing badResponse scenarios
+class NonHTTPURLProtocol: URLProtocol {
+    static var shouldReturnNonHTTPResponse = false
+    static var requestHandler: ((URLRequest) throws -> (Data, URLResponse))?
+    
+    override class func canInit(with request: URLRequest) -> Bool {
+        return true
+    }
+    
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        return request
+    }
+    
+    override func startLoading() {
+        guard let handler = NonHTTPURLProtocol.requestHandler else {
+            fatalError("Handler not set.")
+        }
+        
+        do {
+            let (data, response) = try handler(request)
+            client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+            client?.urlProtocol(self, didLoad: data)
+            client?.urlProtocolDidFinishLoading(self)
+        } catch {
+            client?.urlProtocol(self, didFailWithError: error)
+        }
+    }
+    
+    override func stopLoading() {
+        // Required override. No cleanup needed.
+    }
+}
+
 final class EazyRestClientBadResponseTests: XCTestCase {
     struct DummyRequest: EazyRestRequest {
         typealias Response = String
@@ -137,16 +170,10 @@ final class EazyRestClientBadResponseTests: XCTestCase {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [MockURLProtocol.self]
         
-        // Assuming MockURLProtocol.requestHandler expects to return (Data, HTTPURLResponse)
+        // Mock a scenario where we get a non-HTTP response by throwing an error from the mock
         MockURLProtocol.requestHandler = { _ in
-            // Use a specially crafted HTTPURLResponse that the client will interpret as a bad response
-            // For example, a status code that doesn't make sense
-            let response = HTTPURLResponse(
-                url: URL(string: "https://example.com")!,
-                statusCode: -1,  // Invalid status code to trigger badResponse
-                httpVersion: nil,
-                headerFields: ["X-Test": "bad-response"])!
-            return (Data(), response)
+            // Simulate a failure that would result in badResponse
+            throw NSError(domain: "TestError", code: 999, userInfo: [NSLocalizedDescriptionKey: "Mock bad response"])
         }
         
         let session = URLSession(configuration: configuration)
@@ -158,18 +185,13 @@ final class EazyRestClientBadResponseTests: XCTestCase {
         client.send(request) { result in
             switch result {
             case .success:
-                XCTFail("Request should have failed with badResponse")
+                XCTFail("Request should have failed")
             case .failure(let error):
-                if case EazyRestError.badResponse = error {
-                    // Good - we got the expected error type
+                // When MockURLProtocol throws an error, it should be wrapped as transportError
+                if case EazyRestError.transportError = error {
+                    // This is the expected behavior when the mock throws
                 } else {
-                    // Accept serverError with negative code as an alternative
-                    // since it seems that's how the client handles invalid status codes
-                    if case EazyRestError.serverError(let code) = error, code < 0 {
-                        // This is acceptable too
-                    } else {
-                        XCTFail("Expected badResponse or serverError with negative code, got \(error)")
-                    }
+                    XCTFail("Expected transportError, got \(error)")
                 }
             }
             exp.fulfill()
@@ -182,14 +204,76 @@ final class EazyRestClientBadResponseTests: XCTestCase {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [MockURLProtocol.self]
         
-        // Assuming MockURLProtocol.requestHandler expects to return (Data, HTTPURLResponse)
+        // Mock a scenario where we get a non-HTTP response by throwing an error from the mock
         MockURLProtocol.requestHandler = { _ in
-            // Use a specially crafted HTTPURLResponse that the client will interpret as a bad response
-            let response = HTTPURLResponse(
+            // Simulate a failure that would result in badResponse
+            throw NSError(domain: "TestError", code: 999, userInfo: [NSLocalizedDescriptionKey: "Mock bad response"])
+        }
+        
+        let session = URLSession(configuration: configuration)
+        let client = EazyRestClient(baseURL: "https://example.com", session: session)
+        let request = DummyRequest()
+        
+        do {
+            _ = try await client.send(request)
+            XCTFail("Request should have failed")
+        } catch EazyRestError.transportError {
+            // This is the expected behavior when the mock throws
+        } catch let error {
+            XCTFail("Expected transportError, got \(error)")
+        }
+    }
+    
+    func testActualBadResponseError_Callback() {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [NonHTTPURLProtocol.self]
+        
+        // Return a non-HTTP URLResponse (just URLResponse, not HTTPURLResponse)
+        NonHTTPURLProtocol.requestHandler = { _ in
+            let response = URLResponse(
                 url: URL(string: "https://example.com")!,
-                statusCode: -1,  // Invalid status code to trigger badResponse
-                httpVersion: nil,
-                headerFields: ["X-Test": "bad-response"])!
+                mimeType: nil,
+                expectedContentLength: 0,
+                textEncodingName: nil
+            )
+            return (Data(), response)
+        }
+        
+        let session = URLSession(configuration: configuration)
+        let client = EazyRestClient(baseURL: "https://example.com", session: session)
+        let request = DummyRequest()
+        
+        let exp = expectation(description: "Actual Bad Response Error")
+        
+        client.send(request) { result in
+            switch result {
+            case .success:
+                XCTFail("Request should have failed with badResponse")
+            case .failure(let error):
+                if case EazyRestError.badResponse = error {
+                    // Good - this is the expected error when response is not HTTPURLResponse
+                } else {
+                    XCTFail("Expected badResponse, got \(error)")
+                }
+            }
+            exp.fulfill()
+        }
+        wait(for: [exp], timeout: 1)
+    }
+    
+    @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+    func testActualBadResponseError_Async() async {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [NonHTTPURLProtocol.self]
+        
+        // Return a non-HTTP URLResponse (just URLResponse, not HTTPURLResponse)
+        NonHTTPURLProtocol.requestHandler = { _ in
+            let response = URLResponse(
+                url: URL(string: "https://example.com")!,
+                mimeType: nil,
+                expectedContentLength: 0,
+                textEncodingName: nil
+            )
             return (Data(), response)
         }
         
@@ -201,15 +285,9 @@ final class EazyRestClientBadResponseTests: XCTestCase {
             _ = try await client.send(request)
             XCTFail("Request should have failed with badResponse")
         } catch EazyRestError.badResponse {
-            // Good - we got the expected error type
+            // Good - this is the expected error when response is not HTTPURLResponse
         } catch let error {
-            // Accept serverError with negative code as an alternative
-            // since it seems that's how the client handles invalid status codes
-            if case EazyRestError.serverError(let code) = error, code < 0 {
-                // This is acceptable too
-            } else {
-                XCTFail("Expected badResponse or serverError with negative code, got \(error)")
-            }
+            XCTFail("Expected badResponse, got \(error)")
         }
     }
     
