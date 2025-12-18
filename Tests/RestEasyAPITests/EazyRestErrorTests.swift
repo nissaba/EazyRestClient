@@ -128,8 +128,22 @@ final class EazyRestClientAdditionalCoverageTests: XCTestCase {
 
 /// Custom URLProtocol that can return non-HTTP responses for testing badResponse scenarios
 class NonHTTPURLProtocol: URLProtocol {
-    static var shouldReturnNonHTTPResponse = false
-    static var requestHandler: ((URLRequest) throws -> (Data, URLResponse))?
+    private struct State {
+        var shouldReturnNonHTTPResponse = false
+        var requestHandler: ((URLRequest) throws -> (Data, URLResponse))?
+    }
+
+    private static let state = Locked(State())
+
+    static var shouldReturnNonHTTPResponse: Bool {
+        get { state.withLock { $0.shouldReturnNonHTTPResponse } }
+        set { state.withLock { $0.shouldReturnNonHTTPResponse = newValue } }
+    }
+
+    static var requestHandler: ((URLRequest) throws -> (Data, URLResponse))? {
+        get { state.withLock { $0.requestHandler } }
+        set { state.withLock { $0.requestHandler = newValue } }
+    }
     
     override class func canInit(with request: URLRequest) -> Bool {
         return true
@@ -140,7 +154,7 @@ class NonHTTPURLProtocol: URLProtocol {
     }
     
     override func startLoading() {
-        guard let handler = NonHTTPURLProtocol.requestHandler else {
+        guard let handler = Self.requestHandler else {
             fatalError("Handler not set.")
         }
         
@@ -610,4 +624,3 @@ final class EazyRestClientHTTPStatusMappingTests: XCTestCase {
         }
     }
 }
-

@@ -6,10 +6,10 @@
 //
 
 import Foundation
-import EasyRestClient
+import EazyRestClient
 
 /// Request for Sunrise-Sunset API
-struct GetSunriseSunsetRequest: EasyResRequest {
+struct GetSunriseSunsetRequest: EazyRestRequest {
     
     var bodyData: Data?
     
@@ -30,4 +30,3 @@ struct GetSunriseSunsetRequest: EasyResRequest {
         ]
     }
 }
-

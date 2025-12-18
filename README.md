@@ -1,6 +1,6 @@
 # EazyRestClient
 
-![SwiftPM](https://img.shields.io/badge/SPM-Compatible-brightgreen.svg) ![Platform](https://img.shields.io/badge/platform-iOS%2013%20%7C%20macOS%2010.15%20%7C%20tvOS%2015%20%7C%20watchOS%208-blue) ![Swift](https://img.shields.io/badge/swift-5.9.2-orange.svg) ![Tests](https://github.com/nissaba/EasyRestClient/actions/workflows/tests.yml/badge.svg) ![Release](https://img.shields.io/github/v/release/nissaba/EasyRestClient)
+![SwiftPM](https://img.shields.io/badge/SPM-Compatible-brightgreen.svg) ![Platform](https://img.shields.io/badge/platform-iOS%2013%20%7C%20macOS%2010.15%20%7C%20tvOS%2015%20%7C%20watchOS%208-blue) ![Swift](https://img.shields.io/badge/swift-6.2-orange.svg) ![Tests](https://github.com/nissaba/EasyRestClient/actions/workflows/tests.yml/badge.svg) ![Release](https://img.shields.io/github/v/release/nissaba/EasyRestClient)
 
 ## Features
 
@@ -43,6 +43,8 @@ struct MyRequest: EazyRestRequest {
     // Optionally override queryItems or bodyData
 }
 ```
+
+`Response` must conform to `Decodable` and `Sendable` (Swift 6 strict concurrency).
 
 ### 3. Callback-based Response Handling
 
@@ -100,4 +102,3 @@ An **ExampleApp** demonstrating both callback and async/await usage is located i
 ## License
 
 MIT License. © 2025 Pascale Beaulac
-

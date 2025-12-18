@@ -26,7 +26,7 @@ import Foundation
 ///
 /// The protocol ensures a consistent structure for building, encoding, and sending requests within EasyREST.
 public protocol EazyRestRequest: Encodable {
-    associatedtype Response: Decodable
+    associatedtype Response: Decodable & Sendable
     
     /// HTTP method (GET, POST, PUT, DELETE, etc.)
     var httpMethod: HTTPMethods { get }
@@ -43,4 +43,3 @@ public protocol EazyRestRequest: Encodable {
     /// Body Data (optional, overrides Encodable body if provided).
     var bodyData: Data? { get }
 }
-
