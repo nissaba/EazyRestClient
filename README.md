@@ -1,6 +1,6 @@
 # EazyRestClient
 
-![SwiftPM](https://img.shields.io/badge/SPM-Compatible-brightgreen.svg) ![Platform](https://img.shields.io/badge/platform-iOS%2013%20%7C%20macOS%2010.15%20%7C%20tvOS%2015%20%7C%20watchOS%208-blue) ![Swift](https://img.shields.io/badge/swift-6.2-orange.svg) ![Tests](https://github.com/nissaba/EasyRestClient/actions/workflows/tests.yml/badge.svg) ![Release](https://img.shields.io/github/v/release/nissaba/EasyRestClient)
+![SwiftPM](https://img.shields.io/badge/SPM-Compatible-brightgreen.svg) ![Platform](https://img.shields.io/badge/platform-iOS%2013%20%7C%20macOS%2010.15%20%7C%20tvOS%2015%20%7C%20watchOS%208-blue) ![Swift](https://img.shields.io/badge/swift-6.2-orange.svg) ![Tests](https://github.com/nissaba/EazyRestClient/actions/workflows/tests.yml/badge.svg) ![Release](https://img.shields.io/github/v/release/nissaba/EazyRestClient)
 
 ## Features
 
@@ -17,7 +17,7 @@
 Add to your `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/nissaba/EasyRestClient.git", from: "1.1.0")
+.package(url: "https://github.com/nissaba/EazyRestClient.git", from: "1.1.0")
 ```
 
 ## Usage
