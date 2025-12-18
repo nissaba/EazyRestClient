@@ -18,8 +18,17 @@ import XCTest
 
 /// URLProtocol stub to intercept network calls and return custom responses.
 class MockURLProtocol: URLProtocol {
+    private struct State {
+        var requestHandler: ((URLRequest) throws -> (Data, HTTPURLResponse))?
+    }
+
+    private static let state = Locked(State())
+
     /// Handler to be set in tests to return data, response or throw error.
-    static var requestHandler: ((URLRequest) throws -> (Data, HTTPURLResponse))?
+    static var requestHandler: ((URLRequest) throws -> (Data, HTTPURLResponse))? {
+        get { state.withLock { $0.requestHandler } }
+        set { state.withLock { $0.requestHandler = newValue } }
+    }
 
     override class func canInit(with request: URLRequest) -> Bool {
         // Intercept all requests
@@ -31,7 +40,7 @@ class MockURLProtocol: URLProtocol {
     }
 
     override func startLoading() {
-        guard let handler = MockURLProtocol.requestHandler else {
+        guard let handler = Self.requestHandler else {
             fatalError("Handler not set.")
         }
 
@@ -73,7 +82,7 @@ final class EazyRestClientTests: XCTestCase {
     }
      
     /// Simple codable struct used as a test response payload.
-    struct TestResponse: Codable {
+    struct TestResponse: Codable, Sendable {
         let value: String
     }
 
@@ -125,4 +134,3 @@ final class EazyRestClientTests: XCTestCase {
         XCTAssertEqual(resp.value, "async")
     }
 }
-

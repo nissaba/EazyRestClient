@@ -9,14 +9,13 @@ import SwiftUI
 import EazyRestClient
 import CoreLocation
 
-
 struct ContentView: View {
     @StateObject private var locationManager = LocationManager()
     @State private var sunrise: String = "-"
     @State private var sunset: String = "-"
     @State private var errorMessage: String?
 
-    private let apiClient = RestEasyAPI(baseUrl: "https://api.sunrise-sunset.org/")
+    private let apiClient = EazyRestClient(baseURL: "https://api.sunrise-sunset.org/")
 
     var body: some View {
         VStack(spacing: 20) {
@@ -60,10 +59,6 @@ struct ContentView: View {
 
         return localFormatter.string(from: date)
     }
-
-
-
-
 
     private func fetchSunTimes() {
         guard let location = locationManager.lastKnownLocation else {

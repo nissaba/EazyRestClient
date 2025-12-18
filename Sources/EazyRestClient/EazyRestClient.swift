@@ -35,7 +35,7 @@ public typealias ResultCallback<T> = @Sendable (Result<T, Error>) -> Void
 
 /// Main HTTP client class for EazyRestClient.
 /// Handles request building, header injection, and response decoding.
-public class EazyRestClient {
+public actor EazyRestClient {
     private let session: URLSession
     private let baseURL: URL
 
@@ -64,64 +64,22 @@ public class EazyRestClient {
         _ request: Request,
         completion: @escaping ResultCallback<Request.Response>
     ) {
-        let urlRequest: URLRequest
-        do {
-            urlRequest = try buildURLRequest(for: request)
-        } catch {
-            DispatchQueue.main.async {
-                completion(.failure(EazyRestError.invalidURL))
-            }
-            return
-        }
-
-        let task = session.dataTask(with: urlRequest) { data, response, error in
-            if let error = error {
-                return DispatchQueue.main.async {
-                    completion(.failure(EazyRestError.transportError(error)))
-                }
-            }
-            guard let http = response as? HTTPURLResponse else {
-                return DispatchQueue.main.async {
-                    completion(.failure(EazyRestError.badResponse))
-                }
-            }
-            if !(200..<300).contains(http.statusCode) {
-                let err: EazyRestError
-                switch http.statusCode {
-                case 401:
-                    err = .unauthorized
-                case 403:
-                    err = .forbidden
-                case 404:
-                    err = .notFound
-                case 408:
-                    err = .timeout
-                case 400..<600:
-                    err = .serverError(http.statusCode)
-                default:
-                    err = .serverError(http.statusCode)
-                }
-                return DispatchQueue.main.async {
-                    completion(.failure(err))
-                }
-            }
-            guard let data = data else {
-                return DispatchQueue.main.async {
-                    completion(.failure(EazyRestError.badResponse))
-                }
-            }
+        Task {
             do {
-                let decoded = try JSONDecoder().decode(Request.Response.self, from: data)
-                DispatchQueue.main.async {
-                    completion(.success(decoded))
+                let response = try await self.send(request)
+                await MainActor.run {
+                    completion(.success(response))
                 }
             } catch {
-                DispatchQueue.main.async {
-                    completion(.failure(EazyRestError.decodingError(error)))
+                await MainActor.run {
+                    if let restError = error as? EazyRestError {
+                        completion(.failure(restError))
+                    } else {
+                        completion(.failure(EazyRestError.transportError(error)))
+                    }
                 }
             }
         }
-        task.resume()
     }
 
     // MARK: - Async/Await version (iOS 15+ / macOS 12+ / tvOS 15+ / watchOS 8+)
@@ -215,6 +173,9 @@ public class EazyRestClient {
         } else if request.httpMethod == .post || request.httpMethod == .put {
             do {
                 urlRequest.httpBody = try JSONEncoder().encode(request)
+                if urlRequest.value(forHTTPHeaderField: "Content-Type") == nil {
+                    urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                }
             } catch {
                 throw EazyRestError.decodingError(error)
             }

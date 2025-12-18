@@ -1,7 +1,7 @@
 //
-// EasyRestResponse.swift
+// EazyRestResponse.swift
 //
-// Generic API response for EasyREST framework
+// Generic API response for EazyREST framework
 //
 // Created and maintained by Pascale Beaulac
 // Copyright © 2019–2025 Pascale Beaulac
@@ -11,13 +11,13 @@
 
 import Foundation
 
-/// A generic top-level response wrapper for API requests in the EasyREST framework.
+/// A generic top-level response wrapper for API requests in the EazyREST framework.
 ///
 /// Use this structure to decode API responses that include a variety of metadata fields and a data payload.
 /// The payload is generic and should match the expected Decodable type for your endpoint.
 ///
 /// - Parameter Response: The expected Decodable type for the response's `data` field.
-public struct EasyRestResponse<Response: Decodable>: Decodable {
+public struct EazyRestResponse<Response: Decodable>: Decodable {
     /// Optional status code returned by the API.
     public let code: Int?
     /// Optional additional details provided by the server, often used for validation errors.

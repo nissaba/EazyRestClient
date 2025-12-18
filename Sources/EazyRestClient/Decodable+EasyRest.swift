@@ -1,7 +1,7 @@
 //
-// Decodable+EasyRest.swift
+// Decodable+EazyRest.swift
 //
-// Utility extensions for EasyREST framework
+// Utility extensions for EazyREST framework
 //
 // Created and maintained by Pascale Beaulac
 // Copyright © 2019–2025 Pascale Beaulac

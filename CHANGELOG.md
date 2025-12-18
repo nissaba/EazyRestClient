@@ -5,7 +5,8 @@ All notable changes to **EazyRestClient** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
--
+- Swift tools updated to 6.2
+- `EazyRestRequest.Response` now requires `Sendable` for Swift 6 strict concurrency
 
 ## [1.1.0] - 2025-04-29
 ### Added
@@ -16,7 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Example code for both callback and async/await usage in README
 
 ### Changed
-- Renamed project and module from `RestEasyAPI` to `EazyRestClient`
+- Renamed project and module from `RestEazyAPI` to `EazyRestClient`
 - Updated README with new installation URL and badges (SwiftPM, Platforms, Swift version, Tests, Release)
 - Consolidated request building logic and improved error handling (`EazyRestError` enhancements)
 
@@ -28,7 +29,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Basic README and example app demonstrating callback usage
 
 
-[Unreleased]: https://github.com/nissaba/EasyRestClient/compare/v1.1.0...HEAD
-[1.1.0]: https://github.com/nissaba/EasyRestClient/releases/tag/v1.1.0
-[1.0.0]: https://github.com/nissaba/EasyRestClient/releases/tag/v1.0.0
-
+[Unreleased]: https://github.com/nissaba/EazyRestClient/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/nissaba/EazyRestClient/releases/tag/v1.1.0
+[1.0.0]: https://github.com/nissaba/EazyRestClient/releases/tag/v1.0.0

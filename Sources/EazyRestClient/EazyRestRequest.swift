@@ -1,7 +1,7 @@
 //
-// EasyResRequest.swift
+// EazyResRequest.swift
 //
-// Request protocol for EasyREST framework
+// Request protocol for EazyREST framework
 //
 // Created and maintained by Pascale Beaulac
 // Copyright © 2019–2025 Pascale Beaulac
@@ -11,7 +11,7 @@
 
 import Foundation
 
-/// A protocol representing a REST request in the EasyREST framework.
+/// A protocol representing a REST request in the EazyREST framework.
 ///
 /// Types conforming to `EazyRestRequest` define all information needed to perform a RESTful network request,
 /// including HTTP method, resource path, headers, query items, and body data. The associated `Response` type
@@ -24,9 +24,9 @@ import Foundation
 /// - `queryItems`: Optional URL query parameters (commonly for GET requests).
 /// - `bodyData`: Optional raw body data to override the Encodable body.
 ///
-/// The protocol ensures a consistent structure for building, encoding, and sending requests within EasyREST.
-public protocol EazyRestRequest: Encodable {
-    associatedtype Response: Decodable
+/// The protocol ensures a consistent structure for building, encoding, and sending requests within EazyREST.
+public protocol EazyRestRequest: Encodable, Sendable {
+    associatedtype Response: Decodable & Sendable
     
     /// HTTP method (GET, POST, PUT, DELETE, etc.)
     var httpMethod: HTTPMethods { get }
@@ -43,4 +43,3 @@ public protocol EazyRestRequest: Encodable {
     /// Body Data (optional, overrides Encodable body if provided).
     var bodyData: Data? { get }
 }
-

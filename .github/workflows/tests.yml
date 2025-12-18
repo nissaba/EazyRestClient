@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Show Swift and Xcode version
         run: |
@@ -34,4 +34,8 @@ jobs:
         run: |
           # 'xcodebuild test' handles both the build and test phases in a single command,
           # making the workflow more reliable and efficient.
-          xcodebuild test -scheme EazyRestClient -destination "${{ matrix.destination }}" | xcbeautify
+          if command -v xcbeautify >/dev/null 2>&1; then
+            xcodebuild test -scheme EazyRestClient -destination "${{ matrix.destination }}" | xcbeautify
+          else
+            xcodebuild test -scheme EazyRestClient -destination "${{ matrix.destination }}"
+          fi

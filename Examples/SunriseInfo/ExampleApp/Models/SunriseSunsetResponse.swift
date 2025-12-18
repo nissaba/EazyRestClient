@@ -9,11 +9,11 @@
 import Foundation
 
 /// Decodable response from Sunrise-Sunset API
-struct SunriseSunsetResponse: Decodable {
+struct SunriseSunsetResponse: Decodable, Sendable {
     let results: Results
     let status: String
     
-    struct Results: Decodable {
+    struct Results: Decodable, Sendable {
         let sunrise: String
         let sunset: String
         let solar_noon: String
