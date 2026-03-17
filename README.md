@@ -1,6 +1,6 @@
 # EazyRestClient
 
-![SwiftPM](https://img.shields.io/badge/SPM-Compatible-brightgreen.svg) ![Platform](https://img.shields.io/badge/platform-iOS%2013%20%7C%20macOS%2010.15%20%7C%20tvOS%2015%20%7C%20watchOS%208-blue) ![Swift](https://img.shields.io/badge/swift-6.2-orange.svg) ![Tests](https://github.com/nissaba/EazyRestClient/actions/workflows/tests.yml/badge.svg) ![Release](https://img.shields.io/github/v/release/nissaba/EazyRestClient)
+![SwiftPM](https://img.shields.io/badge/SPM-Compatible-brightgreen.svg) ![Platform](https://img.shields.io/badge/platform-iOS%2013%20%7C%20macOS%2010.15%20%7C%20tvOS%2015%20%7C%20watchOS%208-blue) ![Swift](https://img.shields.io/badge/swift-6.0-orange.svg) ![Tests](https://github.com/nissaba/EazyRestClient/actions/workflows/tests.yml/badge.svg) ![Release](https://img.shields.io/github/v/release/nissaba/EazyRestClient)
 
 ## Features
 
